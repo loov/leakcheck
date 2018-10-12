@@ -1,13 +1,21 @@
 package main
 
+import "syscall"
+
 func SyscallName(k uint64) string {
-	if k < 0 || len(linuxSyscall) <= k {
+	if k < 0 || uint64(len(linuxSyscall)) <= k {
 		return ""
 	}
 	return linuxSyscall[k]
 }
 
 func SyscallCount() int { return len(linuxSyscall) }
+
+var FileDescriptors = Pair{
+	Name:    "File Descriptors",
+	Opening: []uint64{syscall.SYS_OPEN, syscall.SYS_OPENAT},
+	Closing: []uint64{syscall.SYS_CLOSE},
+}
 
 var linuxSyscall = [...]string{
 	0:   "read",

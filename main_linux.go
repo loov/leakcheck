@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -8,50 +9,90 @@ import (
 )
 
 func main() {
-	tracker := NewTracker()
-	defer tracker.WriteTo(os.Stderr)
+	trace := flag.Bool("trace", false, "trace all syscalls")
+	summary := flag.Bool("summary", false, "summary of syscalls")
+	flag.Parse()
 
-	cmd := exec.Command(os.Args[1], os.Args[2:]...)
+	if *trace {
+		*summary = true
+	}
+
+	args := flag.Args()
+	if len(args) == 0 {
+		fmt.Fprintf(os.Stderr, "unpolluted PROGRAM [args]\n")
+		os.Exit(1)
+	}
+
+	tracker := NewTracker()
+
+	code, err := monitor(tracker, *trace, args[0], args[1:]...)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+	}
+	if *summary {
+		tracker.WriteTo(os.Stderr)
+	}
+
+	if err := FileDescriptors.Verify(tracker); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		if code == 0 {
+			code = 1
+		}
+	}
+
+	os.Exit(code)
+}
+
+func monitor(tracker *Tracker, trace bool, command string, args ...string) (int, error) {
+	cmd := exec.Command(command, args...)
 	cmd.Stderr, cmd.Stdin, cmd.Stdout = os.Stderr, os.Stdin, os.Stdout
 	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Ptrace:  true,
-		Setpgid: true,
+		Ptrace: true,
 	}
 
 	// start process
 	if err := cmd.Start(); err != nil {
-		fmt.Fprintf(os.Stderr, "start command failed: %v\n", err)
-		os.Exit(1)
+		return 1, fmt.Errorf("start command failed: %v", err)
 	}
 
-	// wait program to stop
-	if err := cmd.Wait(); err != nil {
-		fmt.Fprintf(os.Stderr, "wait command failed: %v\n", err)
-		os.Exit(1)
-	}
+	defer func() {
+		_ = cmd.Process.Kill()
+	}()
 
-	var registers syscall.PtraceRegs
+	// wait program to hit a trap
+	_ = cmd.Wait()
+
 	var status syscall.WaitStatus
 	pid := cmd.Process.Pid
-	for !status.Exited() {
+	for {
+		var err error
+		var registers syscall.PtraceRegs
 		err = syscall.PtraceGetRegs(pid, &registers)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "ptrace get regs failed: %v\n", err)
-			os.Exit(1)
+			return 1, fmt.Errorf("ptrace get regs failed: %v", err)
 		}
 
-		tracker.Called(registers.Orig_rax)
+		id := registers.Orig_rax
+		if trace {
+			fmt.Fprintf(os.Stderr, "> %s\n", SyscallName(id))
+		}
+		tracker.Called(id)
 
 		err = syscall.PtraceSyscall(pid, 0)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "ptrace syscall failed: %v\n", err)
+			return 1, fmt.Errorf("ptrace syscall failed: %v", err)
 			os.Exit(1)
 		}
 
 		_, err = syscall.Wait4(pid, &status, 0, nil)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "ptrace wait4 failed: %v\n", err)
-			os.Exit(1)
+			return 1, fmt.Errorf("ptrace wait4 failed: %v", err)
+		}
+
+		if status.Exited() {
+			break
 		}
 	}
+
+	return status.ExitStatus(), nil
 }
