@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"os"
 	"os/exec"
 	"syscall"
 )
+
+import "C"
 
 func main() {
 	trace := flag.Bool("trace", false, "trace all syscalls")
@@ -23,17 +26,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	tracker := NewTracker()
+	counter := NewCounter()
 
-	code, err := monitor(tracker, *trace, args[0], args[1:]...)
+	code, err := monitor(counter, *trace, args[0], args[1:]...)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
 	if *summary {
-		tracker.WriteTo(os.Stderr)
+		counter.WriteTo(os.Stderr)
 	}
 
-	if err := FileDescriptors.Verify(tracker); err != nil {
+	if err := FileDescriptors.Verify(counter); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		if code == 0 {
 			code = 1
@@ -43,7 +46,7 @@ func main() {
 	os.Exit(code)
 }
 
-func monitor(tracker *Tracker, trace bool, command string, args ...string) (int, error) {
+func monitor(counter *Counter, trace bool, command string, args ...string) (int, error) {
 	cmd := exec.Command(command, args...)
 	cmd.Stderr, cmd.Stdin, cmd.Stdout = os.Stderr, os.Stdin, os.Stdout
 	cmd.SysProcAttr = &syscall.SysProcAttr{
@@ -74,14 +77,26 @@ func monitor(tracker *Tracker, trace bool, command string, args ...string) (int,
 
 		id := registers.Orig_rax
 		if trace {
-			fmt.Fprintf(os.Stderr, "> %s\n", SyscallName(id))
+			if id != syscall.SYS_FUTEX && id != syscall.SYS_RT_SIGACTION {
+				fmt.Fprintf(os.Stderr, "> %s\n", SyscallName(id))
+				switch id {
+				case syscall.SYS_CLOSE:
+					fmt.Fprintf(os.Stderr, ". close: %v\n", registers.Rdi)
+				case syscall.SYS_OPEN:
+					fmt.Fprintf(os.Stderr, ". open: %v got %v\n", stringArgument(pid, registers.Rdi), int64(registers.Rax))
+				case syscall.SYS_OPENAT:
+					fmt.Fprintf(os.Stderr, ". openat: %q got %v\n", stringArgument(pid, registers.Rsi), int64(registers.Rax))
+				case syscall.SYS_WRITE:
+					fmt.Fprintf(os.Stderr, ". write: %v got %v\n", registers.Rdi, int64(registers.Rax))
+				}
+			}
 		}
-		tracker.Called(id)
+
+		counter.Called(id)
 
 		err = syscall.PtraceSyscall(pid, 0)
 		if err != nil {
 			return 1, fmt.Errorf("ptrace syscall failed: %v", err)
-			os.Exit(1)
 		}
 
 		_, err = syscall.Wait4(pid, &status, 0, nil)
@@ -95,4 +110,18 @@ func monitor(tracker *Tracker, trace bool, command string, args ...string) (int,
 	}
 
 	return status.ExitStatus(), nil
+}
+
+func stringArgument(pid int, addr uint64) string {
+	var buffer [4096]byte
+	n, err := syscall.PtracePeekData(pid, uintptr(addr), buffer[:])
+	if err != nil {
+		return ""
+	}
+
+	k := bytes.IndexByte(buffer[:n], 0)
+	if k <= n {
+		n = k
+	}
+	return string(buffer[:n])
 }
