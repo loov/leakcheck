@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"os"
@@ -12,8 +11,9 @@ import (
 import "C"
 
 func main() {
-	trace := flag.Bool("trace", false, "trace all syscalls")
-	summary := flag.Bool("summary", false, "summary of syscalls")
+	count := flag.Bool("count", false, "count syscalls")
+	trace := flag.Bool("trace", false, "enable tracing")
+	summary := flag.Bool("summary", false, "summary of analysers")
 	flag.Parse()
 
 	if *trace {
@@ -26,17 +26,24 @@ func main() {
 		os.Exit(1)
 	}
 
-	counter := NewCounter()
+	var analysers Analysers
 
-	code, err := monitor(counter, *trace, args[0], args[1:]...)
+	if *count {
+		analysers = append(analysers, NewCounter(*trace))
+	}
+
+	analysers = append(analysers, NewFileDescriptorAnalyser(*trace))
+
+	code, err := monitor(analysers, args[0], args[1:]...)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
+
 	if *summary {
-		counter.WriteTo(os.Stderr)
+		analysers.WriteTo(os.Stderr)
 	}
 
-	if err := FileDescriptors.Verify(counter); err != nil {
+	if err := analysers.Err(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		if code == 0 {
 			code = 1
@@ -46,7 +53,7 @@ func main() {
 	os.Exit(code)
 }
 
-func monitor(counter *Counter, trace bool, command string, args ...string) (int, error) {
+func monitor(analyser Analyser, command string, args ...string) (int, error) {
 	cmd := exec.Command(command, args...)
 	cmd.Stderr, cmd.Stdin, cmd.Stdout = os.Stderr, os.Stdin, os.Stdout
 	cmd.SysProcAttr = &syscall.SysProcAttr{
@@ -75,24 +82,7 @@ func monitor(counter *Counter, trace bool, command string, args ...string) (int,
 			return 1, fmt.Errorf("ptrace get regs failed: %v", err)
 		}
 
-		id := registers.Orig_rax
-		if trace {
-			if id != syscall.SYS_FUTEX && id != syscall.SYS_RT_SIGACTION {
-				fmt.Fprintf(os.Stderr, "> %s\n", SyscallName(id))
-				switch id {
-				case syscall.SYS_CLOSE:
-					fmt.Fprintf(os.Stderr, ". close: %v\n", registers.Rdi)
-				case syscall.SYS_OPEN:
-					fmt.Fprintf(os.Stderr, ". open: %v got %v\n", stringArgument(pid, registers.Rdi), int64(registers.Rax))
-				case syscall.SYS_OPENAT:
-					fmt.Fprintf(os.Stderr, ". openat: %q got %v\n", stringArgument(pid, registers.Rsi), int64(registers.Rax))
-				case syscall.SYS_WRITE:
-					fmt.Fprintf(os.Stderr, ". write: %v got %v\n", registers.Rdi, int64(registers.Rax))
-				}
-			}
-		}
-
-		counter.Called(id)
+		analyser.Handle(pid, registers)
 
 		err = syscall.PtraceSyscall(pid, 0)
 		if err != nil {
@@ -110,18 +100,4 @@ func monitor(counter *Counter, trace bool, command string, args ...string) (int,
 	}
 
 	return status.ExitStatus(), nil
-}
-
-func stringArgument(pid int, addr uint64) string {
-	var buffer [4096]byte
-	n, err := syscall.PtracePeekData(pid, uintptr(addr), buffer[:])
-	if err != nil {
-		return ""
-	}
-
-	k := bytes.IndexByte(buffer[:n], 0)
-	if k <= n {
-		n = k
-	}
-	return string(buffer[:n])
 }

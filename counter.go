@@ -3,36 +3,41 @@ package main
 import (
 	"fmt"
 	"io"
-	"sync/atomic"
+	"syscall"
 )
 
 type Counter struct {
+	Trace   bool
 	Calls   []uint64
 	Unknown uint64
 }
 
-func NewCounter() *Counter {
+func NewCounter(trace bool) *Counter {
 	return &Counter{
+		Trace:   trace,
 		Calls:   make([]uint64, SyscallCount()),
 		Unknown: 0,
 	}
 }
 
-func (counter *Counter) Called(id uint64) {
-	if id >= uint64(len(counter.Calls)) {
-		atomic.AddUint64(&counter.Unknown, 1)
+func (counter *Counter) Handle(pid int, registers syscall.PtraceRegs) {
+	syscallID := registers.Orig_rax
+	if syscallID >= uint64(len(counter.Calls)) {
+		counter.Unknown++
 		return
 	}
-	atomic.AddUint64(&counter.Calls[id], 1)
+	counter.Calls[syscallID]++
 }
+
+func (counter *Counter) Err() error { return nil }
 
 func (counter *Counter) WriteTo(w io.Writer) (int64, error) {
 	total := int64(0)
-	for id, count := range counter.Calls {
+	for syscallID, count := range counter.Calls {
 		if count == 0 {
 			continue
 		}
-		n, err := fmt.Fprintf(w, "%-14s %d\n", SyscallName(uint64(id)), count)
+		n, err := fmt.Fprintf(w, "%-14s %d\n", SyscallName(uint64(syscallID)), count)
 		total += int64(n)
 		if err != nil {
 			return total, err
@@ -47,25 +52,4 @@ func (counter *Counter) WriteTo(w io.Writer) (int64, error) {
 	}
 
 	return total, nil
-}
-
-type Pair struct {
-	Name    string
-	Opening []uint64
-	Closing []uint64
-}
-
-func (pair *Pair) Verify(counter *Counter) error {
-	opened := uint64(0)
-	closed := uint64(0)
-	for _, call := range pair.Opening {
-		opened += counter.Calls[call]
-	}
-	for _, call := range pair.Closing {
-		closed += counter.Calls[call]
-	}
-	if opened != closed {
-		return fmt.Errorf("%s unbalanced opening %d closing %d", pair.Name, opened, closed)
-	}
-	return nil
 }

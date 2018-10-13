@@ -1,6 +1,9 @@
 package main
 
-import "syscall"
+import (
+	"bytes"
+	"syscall"
+)
 
 func SyscallName(k uint64) string {
 	if k < 0 || uint64(len(linuxSyscall)) <= k {
@@ -9,13 +12,21 @@ func SyscallName(k uint64) string {
 	return linuxSyscall[k]
 }
 
-func SyscallCount() int { return len(linuxSyscall) }
+func SyscallStringArgument(pid int, addr uint64) string {
+	var buffer [4096]byte
+	n, err := syscall.PtracePeekData(pid, uintptr(addr), buffer[:])
+	if err != nil {
+		return ""
+	}
 
-var FileDescriptors = Pair{
-	Name:    "File Descriptors",
-	Opening: []uint64{syscall.SYS_OPEN, syscall.SYS_OPENAT},
-	Closing: []uint64{syscall.SYS_CLOSE},
+	k := bytes.IndexByte(buffer[:n], 0)
+	if k <= n {
+		n = k
+	}
+	return string(buffer[:n])
 }
+
+func SyscallCount() int { return len(linuxSyscall) }
 
 var linuxSyscall = [...]string{
 	0:   "read",
