@@ -9,16 +9,16 @@ import (
 )
 
 type Analyser interface {
-	Handle(pid int, call api.Call)
+	Handle(call api.Call)
 	Err() error
 	WriteTo(w io.Writer) (int64, error)
 }
 
 type Analysers []Analyser
 
-func (xs Analysers) Handle(pid int, call api.Call) {
+func (xs Analysers) Handle(call api.Call) {
 	for _, x := range xs {
-		x.Handle(pid, call)
+		x.Handle(call)
 	}
 }
 

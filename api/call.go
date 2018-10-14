@@ -37,9 +37,22 @@ func (call Syscall) String() string {
 		return call.Name
 	}
 
-	name, ok := syscalls.Name[int64(call.Number)]
+	name, ok := syscalls.Name[call.Number]
 	if !ok {
 		return "Syscall(" + strconv.Itoa(int(call.Number)) + ")"
 	}
 	return name
+}
+
+func (a Syscall) Less(b Syscall) bool {
+	// numeric order for numbers
+	if a.Name == "" && b.Name == "" {
+		return a.Number < b.Number
+	}
+	// alphabetical for names
+	if a.Name != "" && b.Name != "" {
+		return a.Name < b.Name
+	}
+	// sort numbered calls to the front
+	return a.Name == ""
 }

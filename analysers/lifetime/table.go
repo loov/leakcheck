@@ -82,7 +82,7 @@ func (table *Table) closed(fd int64) {
 	}
 }
 
-func (table *Table) Handle(pid int, call api.Call) {
+func (table *Table) Handle(call api.Call) {
 	switch call := call.(type) {
 	case api.Open:
 		if !call.Failed {
