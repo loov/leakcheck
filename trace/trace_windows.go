@@ -9,6 +9,6 @@ import (
 
 func Supported() error { return nttrace.Supported() }
 
-func Program(ctx context.Context, analyser analyser.Analyser, cmd string, args ...string) error {
+func Program(ctx context.Context, analyser analyser.Analyser, cmd string, args ...string) (int, error) {
 	return nttrace.Program(ctx, analyser, cmd, args)
 }

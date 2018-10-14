@@ -24,6 +24,6 @@ func Supported() error {
 	return errors.New("requires NtTrace.exe or straceNt.exe")
 }
 
-func Program(ctx context.Context, analyser analyser.Analyser, cmd string, args ...string) error {
-	return errors.New("todo")
+func Program(ctx context.Context, analyser analyser.Analyser, cmd string, args ...string) (int, error) {
+	return 1, errors.New("todo")
 }
