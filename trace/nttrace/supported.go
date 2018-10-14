@@ -1,4 +1,4 @@
-package ntmonitor
+package nttrace
 
 import (
 	"errors"
