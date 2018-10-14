@@ -6,27 +6,37 @@ import (
 	"github.com/loov/unpolluted/analyser/syscalls"
 )
 
-type Call interface{}
+type Call interface {
+	Raw() Syscall
+}
 
 type Open struct {
-	Path             string
-	ResultDescriptor int64
+	Syscall
+	Path     string
+	ResultFD int64
+	Failed   bool
 }
 
 type Close struct {
-	Descriptor int64
+	Syscall
+	FD     int64
+	Failed bool
 }
 
-// SyscallNumber is the fallback when there isn't a specific struct
-type SyscallNumber int64
+// Syscall is the fallback when there isn't a specific struct
+type Syscall struct {
+	Number int64
+	Name   string
+}
 
-func (num SyscallNumber) Name() string {
-	name, ok := syscalls.Name[int64(num)]
+func (call Syscall) String() string {
+	if call.Name != "" {
+		return call.Name
+	}
+
+	name, ok := syscalls.Name[int64(call.Number)]
 	if !ok {
-		return "SyscallNumber(" + strconv.Itoa(int(num)) + ")"
+		return "Syscall(" + strconv.Itoa(int(call.Number)) + ")"
 	}
 	return name
 }
-
-// SyscallName is the fallback when there isn't a specific struct
-type SyscallName string
