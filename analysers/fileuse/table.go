@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/loov/unpolluted/analyser"
+	"github.com/loov/unpolluted/api"
 )
 
 const (
@@ -82,13 +82,13 @@ func (table *Table) closed(fd int64) {
 	}
 }
 
-func (table *Table) Handle(pid int, call analyser.Call) {
+func (table *Table) Handle(pid int, call api.Call) {
 	switch call := call.(type) {
-	case analyser.Open:
+	case api.Open:
 		if !call.Failed {
 			table.opened(call.Path, call.ResultFD)
 		}
-	case analyser.Close:
+	case api.Close:
 		if !call.Failed {
 			table.closed(call.FD)
 		}

@@ -1,9 +1,9 @@
-package analyser
+package api
 
 import (
 	"strconv"
 
-	"github.com/loov/unpolluted/analyser/syscalls"
+	"github.com/loov/unpolluted/api/syscalls"
 )
 
 type Call interface {
@@ -28,6 +28,8 @@ type Syscall struct {
 	Number int64
 	Name   string
 }
+
+func (call Syscall) Raw() Syscall { return call }
 
 func (call Syscall) String() string {
 	if call.Name != "" {
