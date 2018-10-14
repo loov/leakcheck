@@ -10,5 +10,5 @@ import (
 func Supported() error { return dtrace.Supported() }
 
 func Program(ctx context.Context, analyser api.Analyser, cmd string, args ...string) (int, error) {
-	return dtrace.Program(ctx, analyser, cmd, args)
+	return dtrace.Program(ctx, analyser, cmd, args...)
 }

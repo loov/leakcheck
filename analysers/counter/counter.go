@@ -13,7 +13,7 @@ type Counter struct {
 	Calls map[api.Syscall]uint64
 }
 
-func NewCounter(trace bool) *Counter {
+func New(trace bool) *Counter {
 	return &Counter{
 		Trace: trace,
 		Calls: make(map[api.Syscall]uint64, 1000),
