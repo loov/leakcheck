@@ -13,6 +13,7 @@ type Call interface {
 type Open struct {
 	Syscall
 	Path     string
+	Flag     int // corresponding to os.OpenFile
 	ResultFD int64
 	Failed   bool
 }
