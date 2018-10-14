@@ -1,8 +1,11 @@
 package nttrace
 
 import (
+	"context"
 	"errors"
 	"os/exec"
+
+	"github.com/loov/unpolluted/analyser"
 )
 
 func Supported() error {
@@ -19,4 +22,8 @@ func Supported() error {
 	}
 
 	return errors.New("requires NtTrace.exe or straceNt.exe")
+}
+
+func Program(ctx context.Context, analyser analyser.Analyser, cmd string, args ...string) error {
+	return errors.New("todo")
 }

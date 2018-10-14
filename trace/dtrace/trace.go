@@ -1,14 +1,16 @@
-package trace
+package dtrace
 
 import (
 	"context"
+	"errors"
 
 	"github.com/loov/unpolluted/analyser"
-	"github.com/loov/unpolluted/trace/dtrace"
 )
 
-func Supported() error { return dtrace.Supported() }
+func Supported() error {
+	return errors.New("not supported")
+}
 
 func Program(ctx context.Context, analyser analyser.Analyser, cmd string, args ...string) error {
-	return dtrace.Program(ctx, analyser, cmd, args)
+	return errors.New("todo")
 }
