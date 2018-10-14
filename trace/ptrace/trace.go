@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"syscall"
 
-	"github.com/loov/unpolluted/analyser"
 	"github.com/loov/unpolluted/api"
 )
 
@@ -15,7 +14,7 @@ func Supported() error {
 	return nil
 }
 
-func Program(ctx context.Context, analyser analyser.Analyser, command string, args ...string) (int, error) {
+func Program(ctx context.Context, analyser api.Analyser, command string, args ...string) (int, error) {
 	cmd := exec.Command(command, args...)
 	cmd.Stderr, cmd.Stdin, cmd.Stdout = os.Stderr, os.Stdin, os.Stdout
 	cmd.SysProcAttr = &syscall.SysProcAttr{

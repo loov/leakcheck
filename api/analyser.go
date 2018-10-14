@@ -4,19 +4,17 @@ import (
 	"errors"
 	"io"
 	"strings"
-
-	"github.com/loov/unpolluted/api"
 )
 
 type Analyser interface {
-	Handle(call api.Call)
+	Handle(call Call)
 	Err() error
 	WriteTo(w io.Writer) (int64, error)
 }
 
 type Analysers []Analyser
 
-func (xs Analysers) Handle(call api.Call) {
+func (xs Analysers) Handle(call Call) {
 	for _, x := range xs {
 		x.Handle(call)
 	}
