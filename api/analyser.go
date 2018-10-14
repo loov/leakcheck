@@ -1,4 +1,4 @@
-package analyser
+package api
 
 import (
 	"errors"
