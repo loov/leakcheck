@@ -60,7 +60,11 @@ func generate(sourceFile string) {
 			if len(x.Names) != 1 {
 				panic("unhandled")
 			}
-			fmt.Fprintf(output, "\tsyscall.%v: %q,\n", x.Names[0].Name, cleanupSysname(x.Names[0].Name))
+			if x.Comment == nil {
+				fmt.Fprintf(output, "\tsyscall.%v: %q,\n", x.Names[0].Name, cleanupSysname(x.Names[0].Name))
+			} else {
+				fmt.Fprintf(output, "\tsyscall.%v: %q, // %v\n", x.Names[0].Name, cleanupSysname(x.Names[0].Name), strings.TrimSpace(x.Comment.Text()))
+			}
 			return false
 		}
 		return true
