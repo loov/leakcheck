@@ -14,3 +14,15 @@ Currently supported:
 * [x] Linux 32
 * [ ] Mac
 * [ ] Windows
+
+## Using with Go test
+
+This can be used together with Go tests:
+
+```
+# checking for proper connection and file use
+go test -exec leakcheck .
+
+# additionally checking that all files are created in temp
+go test -exec "leakcheck -temponly" .
+```
