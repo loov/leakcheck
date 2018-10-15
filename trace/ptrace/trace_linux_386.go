@@ -15,14 +15,16 @@ func registersToCall(pid int, registers syscall.PtraceRegs) api.Call {
 	case syscall.SYS_OPEN:
 		return api.Open{
 			Syscall:  raw,
-			Path:     stringArgument(pid, uintptr(registers.Rdi)),
+			Path:     stringArgument(pid, uintptr(registers.Ebp)),
+			Flag:     int(registers.Ecx),
 			ResultFD: int64(registers.Rax),
 			Failed:   registers.Rax < 0,
 		}
 	case syscall.SYS_OPENAT:
 		return api.Open{
 			Syscall:  raw,
-			Path:     stringArgument(pid, uintptr(registers.Rsi)),
+			Path:     stringArgument(pid, uintptr(registers.Ecx)),
+			Flag:     int(registers.Rdx),
 			ResultFD: int64(registers.Rax),
 			Failed:   registers.Rax < 0,
 		}
@@ -30,20 +32,20 @@ func registersToCall(pid int, registers syscall.PtraceRegs) api.Call {
 	case syscall.SYS_CLOSE:
 		return api.Close{
 			Syscall: raw,
-			FD:      int64(registers.Rdi),
+			FD:      int64(registers.Ebp),
 			Failed:  registers.Rax != 0,
 		}
 
 	case syscall.SYS_UNLINK:
 		return api.Unlink{
 			Syscall: raw,
-			Path:    stringArgument(pid, uintptr(registers.Rdi)),
+			Path:    stringArgument(pid, uintptr(registers.Ebp)),
 			Failed:  registers.Rax != 0,
 		}
 	case syscall.SYS_UNLINKAT:
 		return api.Unlink{
 			Syscall: raw,
-			Path:    stringArgument(pid, uintptr(registers.Rsi)),
+			Path:    stringArgument(pid, uintptr(registers.Ecx)),
 			Failed:  registers.Rax != 0,
 		}
 

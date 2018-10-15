@@ -16,6 +16,7 @@ func registersToCall(pid int, registers syscall.PtraceRegs) api.Call {
 		return api.Open{
 			Syscall:  raw,
 			Path:     stringArgument(pid, uintptr(registers.Rdi)),
+			Flag:     int(registers.Rsi),
 			ResultFD: int64(registers.Rax),
 			Failed:   int64(registers.Rax) < 0,
 		}
@@ -23,6 +24,7 @@ func registersToCall(pid int, registers syscall.PtraceRegs) api.Call {
 		return api.Open{
 			Syscall:  raw,
 			Path:     stringArgument(pid, uintptr(registers.Rsi)),
+			Flag:     int(registers.Rdx),
 			ResultFD: int64(registers.Rax),
 			Failed:   int64(registers.Rax) < 0,
 		}

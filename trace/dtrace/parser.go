@@ -67,7 +67,5 @@ func isIdent(c byte) bool {
 }
 
 func parseArgument(s string) (string, int) {
-	for p := range s {
-
-	}
+	return "", 0
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/loov/leakcheck/analysers/connuse"
 	"github.com/loov/leakcheck/analysers/counter"
 	"github.com/loov/leakcheck/analysers/fileuse"
+	"github.com/loov/leakcheck/analysers/tempuse"
 	"github.com/loov/leakcheck/analysers/tracer"
 	"github.com/loov/leakcheck/api"
 	"github.com/loov/leakcheck/trace"
@@ -19,6 +20,7 @@ func main() {
 	dotrace := flag.Bool("trace", false, "trace all monitored syscalls")
 	verbose := flag.Bool("verbose", false, "enable verbose output")
 	summary := flag.Bool("summary", false, "summary of analysers")
+	temponly := flag.Bool("temponly", false, "creating files only allowed in temporary directory")
 	flag.Parse()
 
 	if *verbose {
@@ -29,10 +31,12 @@ func main() {
 	analysers.Add(fileuse.New(*verbose))
 	analysers.Add(connuse.New(*verbose))
 
+	if *temponly {
+		analysers.Add(tempuse.New(*verbose))
+	}
 	if *count {
 		analysers.Add(counter.New())
 	}
-
 	if *dotrace {
 		analysers.Add(tracer.New())
 	}
