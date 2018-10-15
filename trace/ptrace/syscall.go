@@ -2,6 +2,8 @@ package ptrace
 
 import (
 	"bytes"
+	"net"
+	"strconv"
 	"syscall"
 	"unsafe"
 )
@@ -20,11 +22,11 @@ func stringArgument(pid int, addr uintptr) string {
 	return string(buffer[:n])
 }
 
-func bindArgument(pid int, addr uintptr, len int) syscall.Sockaddr {
+func bindAddrArgument(pid int, addr uintptr) string {
 	var buffer [4096]byte
 	_, err := syscall.PtracePeekData(pid, addr, buffer[:])
 	if err != nil {
-		return nil
+		return ""
 	}
 
 	family := *(*uint16)(unsafe.Pointer(&buffer[0]))
@@ -36,7 +38,8 @@ func bindArgument(pid int, addr uintptr, len int) syscall.Sockaddr {
 		p := (*[2]byte)(unsafe.Pointer(&pp.Port))
 		sa.Port = int(p[0])<<8 + int(p[1])
 		sa.Addr = pp.Addr
-		return sa
+
+		return net.JoinHostPort(net.IP(sa.Addr[:]).String(), strconv.Itoa(sa.Port))
 
 	case syscall.AF_INET6:
 		pp := (*syscall.RawSockaddrInet6)(unsafe.Pointer(&buffer[0]))
@@ -45,8 +48,8 @@ func bindArgument(pid int, addr uintptr, len int) syscall.Sockaddr {
 		sa.Port = int(p[0])<<8 + int(p[1])
 		sa.ZoneId = pp.Scope_id
 		sa.Addr = pp.Addr
-		return sa
+		return net.JoinHostPort(net.IP(sa.Addr[:]).String(), strconv.Itoa(sa.Port))
 	}
 
-	return nil
+	return ""
 }

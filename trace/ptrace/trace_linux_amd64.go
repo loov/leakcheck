@@ -54,9 +54,11 @@ func registersToCall(pid int, registers syscall.PtraceRegs) api.Call {
 			Failed:   int64(registers.Rax) < 0,
 		}
 	case syscall.SYS_BIND:
+		addr := bindAddrArgument(pid, uintptr(registers.Rsi))
 		return api.Bind{
 			Syscall: raw,
-			FD:      int64(registers.Orig_rax),
+			FD:      int64(registers.Rdi),
+			Addr:    addr,
 			Failed:  registers.Rax != 0,
 		}
 	}

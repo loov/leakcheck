@@ -61,6 +61,23 @@ func (table *Table) opened(fd int64) {
 	desc.Status = StatusOpen
 }
 
+func (table *Table) bind(fd int64, addr string) {
+	if fd < 0 {
+		// TODO: should this be reported?
+		return
+	}
+	if fd > fileLimit || fd > int64(len(table.Open)) {
+		// TODO: should this be logged?
+		return
+	}
+
+	if table.Verbose {
+		fmt.Fprintf(os.Stderr, "> socket bind %q (%v)\n", addr, fd)
+	}
+	desc := &table.Open[fd]
+	desc.Addr = addr
+}
+
 func (table *Table) closed(fd int64) {
 	if fd < 0 {
 		// TODO: should this be reported?
@@ -86,6 +103,10 @@ func (table *Table) Handle(call api.Call) {
 	case api.Socket:
 		if !call.Failed {
 			table.opened(call.ResultFD)
+		}
+	case api.Bind:
+		if !call.Failed {
+			table.bind(call.FD, call.Addr)
 		}
 	case api.Close:
 		if !call.Failed {
