@@ -17,12 +17,15 @@ const (
 type Table struct {
 	Verbose bool
 	Open    []File
+
+	OpenDelete []File
 }
 
 type File struct {
 	ID     int64
 	Name   string
 	Status Status
+	Logged bool
 }
 
 type Status int
@@ -31,7 +34,6 @@ const (
 	StatusUninitialized = Status(0)
 	StatusOpen          = Status(1)
 	StatusClosed        = Status(2)
-	StatusErrored       = Status(3)
 )
 
 func New(verbose bool) *Table {
@@ -60,6 +62,21 @@ func (table *Table) opened(name string, fd int64) {
 	desc.ID = fd
 	desc.Name = name
 	desc.Status = StatusOpen
+}
+
+func (table *Table) checkClosed(path string) {
+	if path == "" {
+		return
+	}
+
+	for fd := range table.Open {
+		desc := &table.Open[fd]
+		// TODO: better path comparison
+		if desc.Status == StatusOpen && desc.Name == path && !desc.Logged {
+			table.OpenDelete = append(table.OpenDelete, *desc)
+			desc.Logged = true
+		}
+	}
 }
 
 func (table *Table) closed(fd int64) {
@@ -92,6 +109,8 @@ func (table *Table) Handle(call api.Call) {
 		if !call.Failed {
 			table.closed(call.FD)
 		}
+	case api.Unlink:
+		table.checkClosed(call.Path)
 	}
 }
 
@@ -103,6 +122,11 @@ func (table *Table) Err() error {
 		if desc.Status == StatusOpen {
 			fmt.Fprintf(&buf, "unclosed file %q (%d)\n", desc.Name, desc.ID)
 		}
+	}
+
+	for fd := range table.OpenDelete {
+		desc := &table.OpenDelete[fd]
+		fmt.Fprintf(&buf, "deleted open file %q (%d)\n", desc.Name, desc.ID)
 	}
 
 	if buf.Len() == 0 {
