@@ -10,8 +10,8 @@ leakcheck analyses program syscalls and checks whether:
 
 Currently supported:
 
-* [x] Linux 64
-* [x] Linux 32
+* [x] Linux amd64
+* [x] Linux 386
 * [ ] Mac
 * [ ] Windows
 
