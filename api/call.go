@@ -18,6 +18,12 @@ type Open struct {
 	Failed   bool
 }
 
+type Unlink struct {
+	Syscall
+	Path   string
+	Failed bool
+}
+
 type Close struct {
 	Syscall
 	FD     int64

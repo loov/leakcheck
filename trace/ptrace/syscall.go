@@ -5,9 +5,9 @@ import (
 	"syscall"
 )
 
-func SyscallStringArgument(pid int, addr uint64) string {
+func SyscallStringArgument(pid int, addr uintptr) string {
 	var buffer [4096]byte
-	n, err := syscall.PtracePeekData(pid, uintptr(addr), buffer[:])
+	n, err := syscall.PtracePeekData(pid, addr, buffer[:])
 	if err != nil {
 		return ""
 	}

@@ -68,34 +68,3 @@ func Program(ctx context.Context, analyser api.Analyser, command string, args ..
 
 	return status.ExitStatus(), nil
 }
-
-func registersToCall(pid int, registers syscall.PtraceRegs) api.Call {
-	raw := api.Syscall{
-		Number: registers.Orig_rax,
-	}
-
-	switch raw.Number {
-	case syscall.SYS_OPEN:
-		return api.Open{
-			Syscall:  raw,
-			Path:     SyscallStringArgument(pid, registers.Rdi),
-			ResultFD: int64(registers.Rax),
-			Failed:   int64(registers.Rax) < 0,
-		}
-	case syscall.SYS_OPENAT:
-		return api.Open{
-			Syscall:  raw,
-			Path:     SyscallStringArgument(pid, registers.Rsi),
-			ResultFD: int64(registers.Rax),
-			Failed:   int64(registers.Rax) < 0,
-		}
-	case syscall.SYS_CLOSE:
-		return api.Close{
-			Syscall: raw,
-			FD:      int64(registers.Rdi),
-			Failed:  int64(registers.Rdi) < 0,
-		}
-	}
-
-	return raw
-}
