@@ -48,17 +48,27 @@ func registersToCall(pid int, registers unix.PtraceRegs) api.Call {
 			Failed:  registers.Eax != 0,
 		}
 
-	case unix.SYS_SOCKET:
-		return api.Socket{
-			Syscall:  raw,
-			ResultFD: int64(registers.Eax),
-			Failed:   registers.Eax < 0,
-		}
-	case unix.SYS_BIND:
-		return api.Bind{
-			Syscall: raw,
-			FD:      int64(registers.Ebx),
-			Failed:  registers.Eax != 0,
+	case unix.SYS_SOCKETCALL:
+		// TODO: find correct table for socket call constants
+		socketcall := int(registers.Ebx)
+		switch socketcall {
+		// case unix.SYS_SOCKET:
+		case 1:
+			raw.Number = unix.SYS_SOCKET
+			return api.Socket{
+				Syscall:  raw,
+				ResultFD: int64(registers.Eax),
+				Failed:   registers.Eax < 0,
+			}
+		// case unix.SYS_BIND:
+		case 2:
+			raw.Number = unix.SYS_BIND
+			return api.Bind{
+				Syscall: raw,
+				FD:      int64(registers.Ebx),
+				// TODO: detect addr
+				Failed: registers.Eax != 0,
+			}
 		}
 	}
 
