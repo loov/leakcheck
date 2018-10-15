@@ -54,12 +54,6 @@ func registersToCall(pid int, registers unix.PtraceRegs) api.Call {
 			ResultFD: int64(registers.Rax),
 			Failed:   int64(registers.Rax) < 0,
 		}
-	case unix.SYS_SOCKETCALL:
-		return api.Socket{
-			Syscall:  raw,
-			ResultFD: int64(registers.Rax),
-			Failed:   int64(registers.Rax) < 0,
-		}
 	case unix.SYS_BIND:
 		addr := bindAddrArgument(pid, uintptr(registers.Rsi))
 		return api.Bind{

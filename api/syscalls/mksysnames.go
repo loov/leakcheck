@@ -55,9 +55,9 @@ func generate(sourceFile string) {
 
 	fmt.Fprintln(output, `package syscalls`)
 	fmt.Fprintln(output)
-	fmt.Fprintln(output, `import "syscall"`)
+	fmt.Fprintln(output, `import "golang.org/x/sys/unix"`)
 	fmt.Fprintln(output)
-	fmt.Fprintln(output, `var _ = syscall.Exit`)
+	fmt.Fprintln(output, `var _ = unix.Exit`)
 	fmt.Fprintln(output)
 	fmt.Fprintln(output, `var Name = map[uint64]string{`)
 
@@ -74,9 +74,9 @@ func generate(sourceFile string) {
 			}
 
 			if x.Comment == nil {
-				fmt.Fprintf(output, "\tsyscall.%v: %q,\n", name, cleanupSysname(name))
+				fmt.Fprintf(output, "\tunix.%v: %q,\n", name, cleanupSysname(name))
 			} else {
-				fmt.Fprintf(output, "\tsyscall.%v: %q, // %v\n", name, cleanupSysname(name), strings.TrimSpace(x.Comment.Text()))
+				fmt.Fprintf(output, "\tunix.%v: %q, // %v\n", name, cleanupSysname(name), strings.TrimSpace(x.Comment.Text()))
 			}
 			return false
 		}
