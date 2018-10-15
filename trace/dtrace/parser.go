@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/loov/unpolluted/api"
+	"github.com/loov/leakcheck/api"
 )
 
 type Parser struct {

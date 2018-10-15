@@ -3,7 +3,7 @@ package api
 import (
 	"strconv"
 
-	"github.com/loov/unpolluted/api/syscalls"
+	"github.com/loov/leakcheck/api/syscalls"
 )
 
 type Call interface {

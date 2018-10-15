@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"syscall"
 
-	"github.com/loov/unpolluted/api"
+	"github.com/loov/leakcheck/api"
 )
 
 func Supported() error {

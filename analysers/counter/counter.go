@@ -5,7 +5,7 @@ import (
 	"io"
 	"sort"
 
-	"github.com/loov/unpolluted/api"
+	"github.com/loov/leakcheck/api"
 )
 
 type Counter struct {

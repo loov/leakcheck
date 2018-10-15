@@ -30,7 +30,7 @@ func main() {
 
 	args := flag.Args()
 	if len(args) == 0 {
-		fmt.Fprintf(os.Stderr, "unpolluted PROGRAM [args]\n")
+		fmt.Fprintf(os.Stderr, "leakcheck PROGRAM [args]\n")
 		os.Exit(1)
 	}
 

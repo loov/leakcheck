@@ -7,7 +7,7 @@ import (
 
 // Tests need to be run with:
 //
-//   go test -exec ./unpolluted .
+//   go test -exec ./leakcheck .
 
 func TestFileLeak(t *testing.T) {
 	file, err := ioutil.TempFile("", "leak-*.txt")

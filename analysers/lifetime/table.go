@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/loov/unpolluted/api"
+	"github.com/loov/leakcheck/api"
 )
 
 const (

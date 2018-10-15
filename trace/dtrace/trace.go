@@ -5,7 +5,7 @@ import (
 	"errors"
 	"os/exec"
 
-	"github.com/loov/unpolluted/api"
+	"github.com/loov/leakcheck/api"
 )
 
 func Supported() error {

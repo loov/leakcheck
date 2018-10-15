@@ -3,8 +3,8 @@ package trace
 import (
 	"context"
 
-	"github.com/loov/unpolluted/api"
-	"github.com/loov/unpolluted/trace/dtrace"
+	"github.com/loov/leakcheck/api"
+	"github.com/loov/leakcheck/trace/dtrace"
 )
 
 func Supported() error { return dtrace.Supported() }
