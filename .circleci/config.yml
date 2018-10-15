@@ -4,10 +4,10 @@ jobs:
     docker:
       - image: circleci/golang:1.11
 
-    working_directory: $HOME/leakcheck
+    working_directory: /leakcheck
+
     steps:
       - checkout
-
       - run: go get -v -t -d ./...
       - run: go build .
       - run: go test -exec ./leakcheck -v ./...
