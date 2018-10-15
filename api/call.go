@@ -24,6 +24,19 @@ type Unlink struct {
 	Failed bool
 }
 
+type Socket struct {
+	Syscall
+	ResultFD int64
+	Failed   bool
+}
+
+type Bind struct {
+	Syscall
+	FD     int64
+	Addr   string
+	Failed bool
+}
+
 type Close struct {
 	Syscall
 	FD     int64

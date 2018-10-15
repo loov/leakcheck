@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/loov/leakcheck/analysers/connuse"
 	"github.com/loov/leakcheck/analysers/counter"
 	"github.com/loov/leakcheck/analysers/fileuse"
 	"github.com/loov/leakcheck/analysers/tracer"
@@ -26,6 +27,7 @@ func main() {
 
 	var analysers api.Analysers
 	analysers.Add(fileuse.New(*verbose))
+	analysers.Add(connuse.New(*verbose))
 
 	if *count {
 		analysers.Add(counter.New())
