@@ -11,6 +11,6 @@ leakcheck analyses program syscalls and checks whether:
 Currently supported:
 
 * [x] Linux 64
-* [?] Linux 32 (untested)
+* [x] Linux 32
 * [ ] Mac
 * [ ] Windows
