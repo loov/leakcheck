@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/loov/unpolluted/analysers/counter"
-	"github.com/loov/unpolluted/api"
-	"github.com/loov/unpolluted/trace"
+	"github.com/loov/leakcheck/analysers/counter"
+	"github.com/loov/leakcheck/api"
+	"github.com/loov/leakcheck/trace"
 )
 
 func main() {
