@@ -1,65 +1,64 @@
 package ptrace
 
 import (
-	"syscall"
-
 	"github.com/loov/leakcheck/api"
+	"golang.org/x/sys/unix"
 )
 
-func registersToCall(pid int, registers syscall.PtraceRegs) api.Call {
+func registersToCall(pid int, registers unix.PtraceRegs) api.Call {
 	raw := api.Syscall{
-		Number: registers.Orig_rax,
+		Number: uint64(registers.Orig_eax),
 	}
 
 	switch raw.Number {
-	case syscall.SYS_OPEN:
+	case unix.SYS_OPEN:
 		return api.Open{
 			Syscall:  raw,
-			Path:     stringArgument(pid, uintptr(registers.Ebp)),
+			Path:     stringArgument(pid, uintptr(registers.Ebx)),
 			Flag:     int(registers.Ecx),
-			ResultFD: int64(registers.Rax),
-			Failed:   registers.Rax < 0,
+			ResultFD: int64(registers.Eax),
+			Failed:   registers.Eax < 0,
 		}
-	case syscall.SYS_OPENAT:
+	case unix.SYS_OPENAT:
 		return api.Open{
 			Syscall:  raw,
 			Path:     stringArgument(pid, uintptr(registers.Ecx)),
-			Flag:     int(registers.Rdx),
-			ResultFD: int64(registers.Rax),
-			Failed:   registers.Rax < 0,
+			Flag:     int(registers.Edx),
+			ResultFD: int64(registers.Eax),
+			Failed:   registers.Eax < 0,
 		}
 
-	case syscall.SYS_CLOSE:
+	case unix.SYS_CLOSE:
 		return api.Close{
 			Syscall: raw,
-			FD:      int64(registers.Ebp),
-			Failed:  registers.Rax != 0,
+			FD:      int64(registers.Ebx),
+			Failed:  registers.Eax != 0,
 		}
 
-	case syscall.SYS_UNLINK:
+	case unix.SYS_UNLINK:
 		return api.Unlink{
 			Syscall: raw,
-			Path:    stringArgument(pid, uintptr(registers.Ebp)),
-			Failed:  registers.Rax != 0,
+			Path:    stringArgument(pid, uintptr(registers.Ebx)),
+			Failed:  registers.Eax != 0,
 		}
-	case syscall.SYS_UNLINKAT:
+	case unix.SYS_UNLINKAT:
 		return api.Unlink{
 			Syscall: raw,
 			Path:    stringArgument(pid, uintptr(registers.Ecx)),
-			Failed:  registers.Rax != 0,
+			Failed:  registers.Eax != 0,
 		}
 
-	case syscall.SYS_SOCKET:
+	case unix.SYS_SOCKET:
 		return api.Socket{
 			Syscall:  raw,
-			ResultFD: int64(registers.Rax),
-			Failed:   registers.Rax < 0,
+			ResultFD: int64(registers.Eax),
+			Failed:   registers.Eax < 0,
 		}
-	case syscall.SYS_BIND:
+	case unix.SYS_BIND:
 		return api.Bind{
 			Syscall: raw,
-			FD:      int64(registers.Orig_rax),
-			Failed:  registers.Rax != 0,
+			FD:      int64(registers.Ebx),
+			Failed:  registers.Eax != 0,
 		}
 	}
 

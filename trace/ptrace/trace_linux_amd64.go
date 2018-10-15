@@ -1,18 +1,17 @@
 package ptrace
 
 import (
-	"syscall"
-
 	"github.com/loov/leakcheck/api"
+	"golang.org/x/sys/unix"
 )
 
-func registersToCall(pid int, registers syscall.PtraceRegs) api.Call {
+func registersToCall(pid int, registers unix.PtraceRegs) api.Call {
 	raw := api.Syscall{
 		Number: uint64(registers.Orig_rax),
 	}
 
 	switch raw.Number {
-	case syscall.SYS_OPEN:
+	case unix.SYS_OPEN:
 		return api.Open{
 			Syscall:  raw,
 			Path:     stringArgument(pid, uintptr(registers.Rdi)),
@@ -20,7 +19,7 @@ func registersToCall(pid int, registers syscall.PtraceRegs) api.Call {
 			ResultFD: int64(registers.Rax),
 			Failed:   int64(registers.Rax) < 0,
 		}
-	case syscall.SYS_OPENAT:
+	case unix.SYS_OPENAT:
 		return api.Open{
 			Syscall:  raw,
 			Path:     stringArgument(pid, uintptr(registers.Rsi)),
@@ -29,33 +28,39 @@ func registersToCall(pid int, registers syscall.PtraceRegs) api.Call {
 			Failed:   int64(registers.Rax) < 0,
 		}
 
-	case syscall.SYS_CLOSE:
+	case unix.SYS_CLOSE:
 		return api.Close{
 			Syscall: raw,
 			FD:      int64(registers.Rdi),
 			Failed:  registers.Rax != 0,
 		}
 
-	case syscall.SYS_UNLINK:
+	case unix.SYS_UNLINK:
 		return api.Unlink{
 			Syscall: raw,
 			Path:    stringArgument(pid, uintptr(registers.Rdi)),
 			Failed:  registers.Rax != 0,
 		}
-	case syscall.SYS_UNLINKAT:
+	case unix.SYS_UNLINKAT:
 		return api.Unlink{
 			Syscall: raw,
 			Path:    stringArgument(pid, uintptr(registers.Rsi)),
 			Failed:  registers.Rax != 0,
 		}
 
-	case syscall.SYS_SOCKET:
+	case unix.SYS_SOCKET:
 		return api.Socket{
 			Syscall:  raw,
 			ResultFD: int64(registers.Rax),
 			Failed:   int64(registers.Rax) < 0,
 		}
-	case syscall.SYS_BIND:
+	case unix.SYS_SOCKETCALL:
+		return api.Socket{
+			Syscall:  raw,
+			ResultFD: int64(registers.Rax),
+			Failed:   int64(registers.Rax) < 0,
+		}
+	case unix.SYS_BIND:
 		addr := bindAddrArgument(pid, uintptr(registers.Rsi))
 		return api.Bind{
 			Syscall: raw,

@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/loov/leakcheck/api"
+	"golang.org/x/sys/unix"
 )
 
 func Supported() error {
@@ -38,12 +39,12 @@ func Program(ctx context.Context, analyser api.Analyser, command string, args ..
 	// wait program to hit a trap
 	_ = cmd.Wait()
 
-	var status syscall.WaitStatus
+	var status unix.WaitStatus
 	pid := cmd.Process.Pid
 	for {
 		var err error
-		var registers syscall.PtraceRegs
-		err = syscall.PtraceGetRegs(pid, &registers)
+		var registers unix.PtraceRegs
+		err = unix.PtraceGetRegs(pid, &registers)
 		if err != nil {
 			return 1, fmt.Errorf("ptrace get regs failed: %v", err)
 		}
@@ -51,12 +52,12 @@ func Program(ctx context.Context, analyser api.Analyser, command string, args ..
 		call := registersToCall(pid, registers)
 		analyser.Handle(call)
 
-		err = syscall.PtraceSyscall(pid, 0)
+		err = unix.PtraceSyscall(pid, 0)
 		if err != nil {
 			return 1, fmt.Errorf("ptrace syscall failed: %v", err)
 		}
 
-		_, err = syscall.Wait4(pid, &status, 0, nil)
+		_, err = unix.Wait4(pid, &status, 0, nil)
 		if err != nil {
 			return 1, fmt.Errorf("ptrace wait4 failed: %v", err)
 		}
