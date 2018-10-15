@@ -22,12 +22,13 @@ func stringArgument(pid int, addr uintptr) string {
 
 func bindArgument(pid int, addr uintptr, len int) syscall.Sockaddr {
 	var buffer [4096]byte
-	n, err := syscall.PtracePeekData(pid, addr, buffer[:])
+	_, err := syscall.PtracePeekData(pid, addr, buffer[:])
 	if err != nil {
 		return nil
 	}
 
-	family := *(*uint16)(unsafe.Pointer(&buffer[0]))
+	//family := *(*uint16)(unsafe.Pointer(&buffer[0]))
+	family := 0
 	switch family {
 	// TODO: other calls
 	case syscall.AF_INET:
@@ -35,10 +36,8 @@ func bindArgument(pid int, addr uintptr, len int) syscall.Sockaddr {
 		sa := new(syscall.SockaddrInet4)
 		p := (*[2]byte)(unsafe.Pointer(&pp.Port))
 		sa.Port = int(p[0])<<8 + int(p[1])
-		for i := 0; i < len(sa.Addr); i++ {
-			sa.Addr[i] = pp.Addr[i]
-		}
-		return sa, nil
+		sa.Addr = pp.Addr
+		return sa
 
 	case syscall.AF_INET6:
 		pp := (*syscall.RawSockaddrInet6)(unsafe.Pointer(&buffer[0]))
@@ -46,10 +45,9 @@ func bindArgument(pid int, addr uintptr, len int) syscall.Sockaddr {
 		p := (*[2]byte)(unsafe.Pointer(&pp.Port))
 		sa.Port = int(p[0])<<8 + int(p[1])
 		sa.ZoneId = pp.Scope_id
-		for i := 0; i < len(sa.Addr); i++ {
-			sa.Addr[i] = pp.Addr[i]
-		}
-		return sa, nil
+		sa.Addr = pp.Addr
+		return sa
 	}
+
 	return nil
 }
