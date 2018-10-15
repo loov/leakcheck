@@ -26,7 +26,7 @@ type Close struct {
 
 // Syscall is the fallback when there isn't a specific struct
 type Syscall struct {
-	Number int64
+	Number uint64
 	Name   string
 }
 

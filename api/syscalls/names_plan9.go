@@ -4,7 +4,7 @@ import "syscall"
 
 var _ = syscall.Exit
 
-var Name = map[int64]string{
+var Name = map[uint64]string{
 	syscall.SYS_SYSR1:       "sysr1",
 	syscall.SYS_BIND:        "bind",
 	syscall.SYS_CHDIR:       "chdir",

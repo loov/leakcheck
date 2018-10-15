@@ -4,7 +4,7 @@ import "syscall"
 
 var _ = syscall.Exit
 
-var Name = map[int64]string{
+var Name = map[uint64]string{
 	syscall.SYS_OABI_SYSCALL_BASE:      "oabi_syscall_base",
 	syscall.SYS_SYSCALL_BASE:           "syscall_base",
 	syscall.SYS_RESTART_SYSCALL:        "restart_syscall",

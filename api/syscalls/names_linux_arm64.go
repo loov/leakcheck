@@ -4,7 +4,7 @@ import "syscall"
 
 var _ = syscall.Exit
 
-var Name = map[int64]string{
+var Name = map[uint64]string{
 	syscall.SYS_IO_SETUP:               "io_setup",
 	syscall.SYS_IO_DESTROY:             "io_destroy",
 	syscall.SYS_IO_SUBMIT:              "io_submit",

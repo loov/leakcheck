@@ -4,7 +4,7 @@ import "syscall"
 
 var _ = syscall.Exit
 
-var Name = map[int64]string{
+var Name = map[uint64]string{
 	syscall.SYS_EXIT:                     "exit",                     // { void sys_exit(int rval); } exit \
 	syscall.SYS_FORK:                     "fork",                     // { int fork(void); }
 	syscall.SYS_READ:                     "read",                     // { ssize_t read(int fd, void *buf, \

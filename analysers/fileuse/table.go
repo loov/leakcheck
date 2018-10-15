@@ -15,8 +15,8 @@ const (
 )
 
 type Table struct {
-	Trace bool
-	Open  []File
+	Verbose bool
+	Open    []File
 }
 
 type File struct {
@@ -34,8 +34,8 @@ const (
 	StatusErrored       = Status(3)
 )
 
-func New(trace bool) *Table {
-	return &Table{Trace: trace}
+func New(verbose bool) *Table {
+	return &Table{Verbose: verbose}
 }
 
 func (table *Table) opened(name string, fd int64) {
@@ -48,7 +48,7 @@ func (table *Table) opened(name string, fd int64) {
 		return
 	}
 
-	if table.Trace {
+	if table.Verbose {
 		fmt.Fprintf(os.Stderr, "> open %q (%v)\n", name, fd)
 	}
 
@@ -73,7 +73,7 @@ func (table *Table) closed(fd int64) {
 	}
 
 	desc := &table.Open[fd]
-	if table.Trace {
+	if table.Verbose {
 		fmt.Fprintf(os.Stderr, "> close %q (%v)\n", desc.Name, fd)
 	}
 

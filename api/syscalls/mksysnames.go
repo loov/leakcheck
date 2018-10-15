@@ -52,7 +52,7 @@ func generate(sourceFile string) {
 	fmt.Fprintln(output)
 	fmt.Fprintln(output, `var _ = syscall.Exit`)
 	fmt.Fprintln(output)
-	fmt.Fprintln(output, `var Name = map[int64]string{`)
+	fmt.Fprintln(output, `var Name = map[uint64]string{`)
 
 	ast.Inspect(file, func(n ast.Node) bool {
 		switch x := n.(type) {

@@ -9,13 +9,11 @@ import (
 )
 
 type Counter struct {
-	Trace bool
 	Calls map[api.Syscall]uint64
 }
 
-func New(trace bool) *Counter {
+func New() *Counter {
 	return &Counter{
-		Trace: trace,
 		Calls: make(map[api.Syscall]uint64, 1000),
 	}
 }

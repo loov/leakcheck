@@ -85,7 +85,7 @@ func registersToCall(pid int, registers syscall.PtraceRegs) api.Call {
 	case syscall.SYS_OPENAT:
 		return api.Open{
 			Syscall:  raw,
-			Path:     SyscallStringArgument(pid, registers.Rdi),
+			Path:     SyscallStringArgument(pid, registers.Rsi),
 			ResultFD: int64(registers.Rax),
 			Failed:   int64(registers.Rax) < 0,
 		}
