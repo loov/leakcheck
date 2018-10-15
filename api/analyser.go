@@ -14,6 +14,10 @@ type Analyser interface {
 
 type Analysers []Analyser
 
+func (xs *Analysers) Add(x ...Analyser) {
+	*xs = append(*xs, x...)
+}
+
 func (xs Analysers) Handle(call Call) {
 	for _, x := range xs {
 		x.Handle(call)

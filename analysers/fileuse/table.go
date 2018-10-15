@@ -1,4 +1,4 @@
-package lifetime
+package fileuse
 
 import (
 	"errors"
@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	fileDescriptorRecordLimit = 100000
+	fileLimit = 100000
 )
 
 type Table struct {
@@ -43,7 +43,7 @@ func (table *Table) opened(name string, fd int64) {
 		// TODO: should this be reported?
 		return
 	}
-	if fd > fileDescriptorRecordLimit {
+	if fd > fileLimit {
 		// TODO: should this be logged?
 		return
 	}

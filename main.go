@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/loov/leakcheck/analysers/counter"
+	"github.com/loov/leakcheck/analysers/fileuse"
 	"github.com/loov/leakcheck/api"
 	"github.com/loov/leakcheck/trace"
 )
@@ -24,9 +25,10 @@ func main() {
 	}
 
 	var analysers api.Analysers
-	analysers = append(analysers,
-		counter.New(*verbose),
-	)
+	analysers.Add(fileuse.New(*verbose))
+	if *count {
+		analysers.Add(counter.New(*verbose))
+	}
 
 	args := flag.Args()
 	if len(args) == 0 {
@@ -34,7 +36,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	code, err := trace.Process(context.Background(), analysers, args[0], args[1:]...)
+	code, err := trace.Program(context.Background(), analysers, args[0], args[1:]...)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 	}
