@@ -27,8 +27,7 @@ func bindArgument(pid int, addr uintptr, len int) syscall.Sockaddr {
 		return nil
 	}
 
-	//family := *(*uint16)(unsafe.Pointer(&buffer[0]))
-	family := 0
+	family := *(*uint16)(unsafe.Pointer(&buffer[0]))
 	switch family {
 	// TODO: other calls
 	case syscall.AF_INET:
