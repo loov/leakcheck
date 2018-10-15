@@ -40,6 +40,7 @@ var Name = map[uint64]string{
 	syscall.SYS_CHFLAGS:        "chflags",        // { int sys_chflags(const char *path, u_int flags); }
 	syscall.SYS_FCHFLAGS:       "fchflags",       // { int sys_fchflags(int fd, u_int flags); }
 	syscall.SYS_SYNC:           "sync",           // { void sys_sync(void); }
+	syscall.SYS_KILL:           "kill",           // { int sys_kill(int pid, int signum); }
 	syscall.SYS_STAT:           "stat",           // { int sys_stat(const char *path, struct stat *ub); }
 	syscall.SYS_GETPPID:        "getppid",        // { pid_t sys_getppid(void); }
 	syscall.SYS_LSTAT:          "lstat",          // { int sys_lstat(const char *path, struct stat *ub); }
@@ -93,7 +94,6 @@ var Name = map[uint64]string{
 	syscall.SYS_DUP2:           "dup2",           // { int sys_dup2(int from, int to); }
 	syscall.SYS_NANOSLEEP:      "nanosleep",      // { int sys_nanosleep(const struct timespec *rqtp, \
 	syscall.SYS_FCNTL:          "fcntl",          // { int sys_fcntl(int fd, int cmd, ... void *arg); }
-	syscall.SYS_ACCEPT4:        "accept4",        // { int sys_accept4(int s, struct sockaddr *name, \
 	syscall.SYS___THRSLEEP:     "__thrsleep",     // { int sys___thrsleep(const volatile void *ident, \
 	syscall.SYS_FSYNC:          "fsync",          // { int sys_fsync(int fd); }
 	syscall.SYS_SETPRIORITY:    "setpriority",    // { int sys_setpriority(int which, id_t who, int prio); }
@@ -101,7 +101,6 @@ var Name = map[uint64]string{
 	syscall.SYS_CONNECT:        "connect",        // { int sys_connect(int s, const struct sockaddr *name, \
 	syscall.SYS_GETDENTS:       "getdents",       // { int sys_getdents(int fd, void *buf, size_t buflen); }
 	syscall.SYS_GETPRIORITY:    "getpriority",    // { int sys_getpriority(int which, id_t who); }
-	syscall.SYS_PIPE2:          "pipe2",          // { int sys_pipe2(int *fdp, int flags); }
 	syscall.SYS_SIGRETURN:      "sigreturn",      // { int sys_sigreturn(struct sigcontext *sigcntxp); }
 	syscall.SYS_BIND:           "bind",           // { int sys_bind(int s, const struct sockaddr *name, \
 	syscall.SYS_SETSOCKOPT:     "setsockopt",     // { int sys_setsockopt(int s, int level, int name, \
@@ -113,7 +112,6 @@ var Name = map[uint64]string{
 	syscall.SYS_READV:          "readv",          // { ssize_t sys_readv(int fd, \
 	syscall.SYS_WRITEV:         "writev",         // { ssize_t sys_writev(int fd, \
 	syscall.SYS_FCHOWN:         "fchown",         // { int sys_fchown(int fd, uid_t uid, gid_t gid); }
-	syscall.SYS_KILL:           "kill",           // { int sys_kill(int pid, int signum); }
 	syscall.SYS_FCHMOD:         "fchmod",         // { int sys_fchmod(int fd, mode_t mode); }
 	syscall.SYS_SETREUID:       "setreuid",       // { int sys_setreuid(uid_t ruid, uid_t euid); }
 	syscall.SYS_SETREGID:       "setregid",       // { int sys_setregid(gid_t rgid, gid_t egid); }

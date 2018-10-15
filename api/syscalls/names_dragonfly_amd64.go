@@ -40,7 +40,7 @@ var Name = map[uint64]string{
 	syscall.SYS_SYNC:                   "sync",                   // { int sync(void); }
 	syscall.SYS_KILL:                   "kill",                   // { int kill(int pid, int signum); }
 	syscall.SYS_GETPPID:                "getppid",                // { pid_t getppid(void); }
-	syscall.SYS_DUP:                    "dup",                    // { int dup(u_int fd); }
+	syscall.SYS_DUP:                    "dup",                    // { int dup(int fd); }
 	syscall.SYS_PIPE:                   "pipe",                   // { int pipe(void); }
 	syscall.SYS_GETEGID:                "getegid",                // { gid_t getegid(void); }
 	syscall.SYS_PROFIL:                 "profil",                 // { int profil(caddr_t samples, size_t size, \
@@ -74,7 +74,7 @@ var Name = map[uint64]string{
 	syscall.SYS_SWAPON:                 "swapon",                 // { int swapon(char *name); }
 	syscall.SYS_GETITIMER:              "getitimer",              // { int getitimer(u_int which, struct itimerval *itv); }
 	syscall.SYS_GETDTABLESIZE:          "getdtablesize",          // { int getdtablesize(void); }
-	syscall.SYS_DUP2:                   "dup2",                   // { int dup2(u_int from, u_int to); }
+	syscall.SYS_DUP2:                   "dup2",                   // { int dup2(int from, int to); }
 	syscall.SYS_FCNTL:                  "fcntl",                  // { int fcntl(int fd, int cmd, long arg); }
 	syscall.SYS_SELECT:                 "select",                 // { int select(int nd, fd_set *in, fd_set *ou, \
 	syscall.SYS_FSYNC:                  "fsync",                  // { int fsync(int fd); }
@@ -141,7 +141,7 @@ var Name = map[uint64]string{
 	syscall.SYS_SEMOP:                  "semop",                  // { int semop(int semid, struct sembuf *sops, \
 	syscall.SYS_MSGCTL:                 "msgctl",                 // { int msgctl(int msqid, int cmd, \
 	syscall.SYS_MSGGET:                 "msgget",                 // { int msgget(key_t key, int msgflg); }
-	syscall.SYS_MSGSND:                 "msgsnd",                 // { int msgsnd(int msqid, void *msgp, size_t msgsz, \
+	syscall.SYS_MSGSND:                 "msgsnd",                 // { int msgsnd(int msqid, const void *msgp, size_t msgsz, \
 	syscall.SYS_MSGRCV:                 "msgrcv",                 // { int msgrcv(int msqid, void *msgp, size_t msgsz, \
 	syscall.SYS_SHMAT:                  "shmat",                  // { caddr_t shmat(int shmid, const void *shmaddr, \
 	syscall.SYS_SHMCTL:                 "shmctl",                 // { int shmctl(int shmid, int cmd, \
@@ -221,7 +221,7 @@ var Name = map[uint64]string{
 	syscall.SYS_GETRESGID:              "getresgid",              // { int getresgid(gid_t *rgid, gid_t *egid, gid_t *sgid); }
 	syscall.SYS_KQUEUE:                 "kqueue",                 // { int kqueue(void); }
 	syscall.SYS_KEVENT:                 "kevent",                 // { int kevent(int fd, \
-	syscall.SYS_SCTP_PEELOFF:           "sctp_peeloff",           // { int sctp_peeloff(int sd, caddr_t name ); }
+	syscall.SYS_KENV:                   "kenv",                   // { int kenv(int what, const char *name, char *value, int len); }
 	syscall.SYS_LCHFLAGS:               "lchflags",               // { int lchflags(char *path, int flags); }
 	syscall.SYS_UUIDGEN:                "uuidgen",                // { int uuidgen(struct uuid *store, int count); }
 	syscall.SYS_SENDFILE:               "sendfile",               // { int sendfile(int fd, int s, off_t offset, size_t nbytes, \
@@ -298,6 +298,15 @@ var Name = map[uint64]string{
 	syscall.SYS_LPATHCONF:              "lpathconf",              // { int lpathconf(char *path, int name); }
 	syscall.SYS_VMM_GUEST_CTL:          "vmm_guest_ctl",          // { int vmm_guest_ctl(int op, struct vmm_guest_options *options); }
 	syscall.SYS_VMM_GUEST_SYNC_ADDR:    "vmm_guest_sync_addr",    // { int vmm_guest_sync_addr(long *dstaddr, long *srcaddr); }
+	syscall.SYS_PROCCTL:                "procctl",                // { int procctl(idtype_t idtype, id_t id, int cmd, void *data); }
+	syscall.SYS_CHFLAGSAT:              "chflagsat",              // { int chflagsat(int fd, const char *path, int flags, int atflags);}
+	syscall.SYS_PIPE2:                  "pipe2",                  // { int pipe2(int *fildes, int flags); }
 	syscall.SYS_UTIMENSAT:              "utimensat",              // { int utimensat(int fd, const char *path, const struct timespec *ts, int flags); }
+	syscall.SYS_FUTIMENS:               "futimens",               // { int futimens(int fd, const struct timespec *ts); }
 	syscall.SYS_ACCEPT4:                "accept4",                // { int accept4(int s, caddr_t name, int *anamelen, int flags); }
+	syscall.SYS_LWP_SETNAME:            "lwp_setname",            // { int lwp_setname(lwpid_t tid, const char *name); }
+	syscall.SYS_PPOLL:                  "ppoll",                  // { int ppoll(struct pollfd *fds, u_int nfds, \
+	syscall.SYS_LWP_SETAFFINITY:        "lwp_setaffinity",        // { int lwp_setaffinity(pid_t pid, lwpid_t tid, const cpumask_t *mask); }
+	syscall.SYS_LWP_GETAFFINITY:        "lwp_getaffinity",        // { int lwp_getaffinity(pid_t pid, lwpid_t tid, cpumask_t *mask); }
+	syscall.SYS_LWP_CREATE2:            "lwp_create2",            // { int lwp_create2(struct lwp_params *params, const cpumask_t *mask); }
 }

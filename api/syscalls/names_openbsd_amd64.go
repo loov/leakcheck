@@ -11,6 +11,7 @@ var Name = map[uint64]string{
 	syscall.SYS_WRITE:          "write",          // { ssize_t sys_write(int fd, const void *buf, \
 	syscall.SYS_OPEN:           "open",           // { int sys_open(const char *path, \
 	syscall.SYS_CLOSE:          "close",          // { int sys_close(int fd); }
+	syscall.SYS_GETENTROPY:     "getentropy",     // { int sys_getentropy(void *buf, size_t nbyte); }
 	syscall.SYS___TFORK:        "__tfork",        // { int sys___tfork(const struct __tfork *param, \
 	syscall.SYS_LINK:           "link",           // { int sys_link(const char *path, const char *link); }
 	syscall.SYS_UNLINK:         "unlink",         // { int sys_unlink(const char *path); }
@@ -36,7 +37,7 @@ var Name = map[uint64]string{
 	syscall.SYS_ACCEPT:         "accept",         // { int sys_accept(int s, struct sockaddr *name, \
 	syscall.SYS_GETPEERNAME:    "getpeername",    // { int sys_getpeername(int fdes, struct sockaddr *asa, \
 	syscall.SYS_GETSOCKNAME:    "getsockname",    // { int sys_getsockname(int fdes, struct sockaddr *asa, \
-	syscall.SYS_ACCESS:         "access",         // { int sys_access(const char *path, int flags); }
+	syscall.SYS_ACCESS:         "access",         // { int sys_access(const char *path, int amode); }
 	syscall.SYS_CHFLAGS:        "chflags",        // { int sys_chflags(const char *path, u_int flags); }
 	syscall.SYS_FCHFLAGS:       "fchflags",       // { int sys_fchflags(int fd, u_int flags); }
 	syscall.SYS_SYNC:           "sync",           // { void sys_sync(void); }
@@ -51,7 +52,6 @@ var Name = map[uint64]string{
 	syscall.SYS_SIGACTION:      "sigaction",      // { int sys_sigaction(int signum, \
 	syscall.SYS_GETGID:         "getgid",         // { gid_t sys_getgid(void); }
 	syscall.SYS_SIGPROCMASK:    "sigprocmask",    // { int sys_sigprocmask(int how, sigset_t mask); }
-	syscall.SYS_GETLOGIN:       "getlogin",       // { int sys_getlogin(char *namebuf, u_int namelen); }
 	syscall.SYS_SETLOGIN:       "setlogin",       // { int sys_setlogin(const char *namebuf); }
 	syscall.SYS_ACCT:           "acct",           // { int sys_acct(const char *path); }
 	syscall.SYS_SIGPENDING:     "sigpending",     // { int sys_sigpending(void); }
@@ -60,7 +60,7 @@ var Name = map[uint64]string{
 	syscall.SYS_REBOOT:         "reboot",         // { int sys_reboot(int opt); }
 	syscall.SYS_REVOKE:         "revoke",         // { int sys_revoke(const char *path); }
 	syscall.SYS_SYMLINK:        "symlink",        // { int sys_symlink(const char *path, \
-	syscall.SYS_READLINK:       "readlink",       // { int sys_readlink(const char *path, char *buf, \
+	syscall.SYS_READLINK:       "readlink",       // { ssize_t sys_readlink(const char *path, \
 	syscall.SYS_EXECVE:         "execve",         // { int sys_execve(const char *path, \
 	syscall.SYS_UMASK:          "umask",          // { mode_t sys_umask(mode_t newmask); }
 	syscall.SYS_CHROOT:         "chroot",         // { int sys_chroot(const char *path); }
@@ -84,9 +84,11 @@ var Name = map[uint64]string{
 	syscall.SYS_GETGROUPS:      "getgroups",      // { int sys_getgroups(int gidsetsize, \
 	syscall.SYS_SETGROUPS:      "setgroups",      // { int sys_setgroups(int gidsetsize, \
 	syscall.SYS_GETPGRP:        "getpgrp",        // { int sys_getpgrp(void); }
-	syscall.SYS_SETPGID:        "setpgid",        // { int sys_setpgid(pid_t pid, int pgid); }
+	syscall.SYS_SETPGID:        "setpgid",        // { int sys_setpgid(pid_t pid, pid_t pgid); }
+	syscall.SYS_FUTEX:          "futex",          // { int sys_futex(uint32_t *f, int op, int val, \
 	syscall.SYS_UTIMENSAT:      "utimensat",      // { int sys_utimensat(int fd, const char *path, \
 	syscall.SYS_FUTIMENS:       "futimens",       // { int sys_futimens(int fd, \
+	syscall.SYS_KBIND:          "kbind",          // { int sys_kbind(const struct __kbind *param, \
 	syscall.SYS_CLOCK_GETTIME:  "clock_gettime",  // { int sys_clock_gettime(clockid_t clock_id, \
 	syscall.SYS_CLOCK_SETTIME:  "clock_settime",  // { int sys_clock_settime(clockid_t clock_id, \
 	syscall.SYS_CLOCK_GETRES:   "clock_getres",   // { int sys_clock_getres(clockid_t clock_id, \
@@ -102,14 +104,19 @@ var Name = map[uint64]string{
 	syscall.SYS_GETDENTS:       "getdents",       // { int sys_getdents(int fd, void *buf, size_t buflen); }
 	syscall.SYS_GETPRIORITY:    "getpriority",    // { int sys_getpriority(int which, id_t who); }
 	syscall.SYS_PIPE2:          "pipe2",          // { int sys_pipe2(int *fdp, int flags); }
+	syscall.SYS_DUP3:           "dup3",           // { int sys_dup3(int from, int to, int flags); }
 	syscall.SYS_SIGRETURN:      "sigreturn",      // { int sys_sigreturn(struct sigcontext *sigcntxp); }
 	syscall.SYS_BIND:           "bind",           // { int sys_bind(int s, const struct sockaddr *name, \
 	syscall.SYS_SETSOCKOPT:     "setsockopt",     // { int sys_setsockopt(int s, int level, int name, \
 	syscall.SYS_LISTEN:         "listen",         // { int sys_listen(int s, int backlog); }
+	syscall.SYS_CHFLAGSAT:      "chflagsat",      // { int sys_chflagsat(int fd, const char *path, \
+	syscall.SYS_PLEDGE:         "pledge",         // { int sys_pledge(const char *promises, \
 	syscall.SYS_PPOLL:          "ppoll",          // { int sys_ppoll(struct pollfd *fds, \
 	syscall.SYS_PSELECT:        "pselect",        // { int sys_pselect(int nd, fd_set *in, fd_set *ou, \
 	syscall.SYS_SIGSUSPEND:     "sigsuspend",     // { int sys_sigsuspend(int mask); }
+	syscall.SYS_SENDSYSLOG:     "sendsyslog",     // { int sys_sendsyslog(const char *buf, size_t nbyte, \
 	syscall.SYS_GETSOCKOPT:     "getsockopt",     // { int sys_getsockopt(int s, int level, int name, \
+	syscall.SYS_THRKILL:        "thrkill",        // { int sys_thrkill(pid_t tid, int signum, void *tcb); }
 	syscall.SYS_READV:          "readv",          // { ssize_t sys_readv(int fd, \
 	syscall.SYS_WRITEV:         "writev",         // { ssize_t sys_writev(int fd, \
 	syscall.SYS_KILL:           "kill",           // { int sys_kill(int pid, int signum); }
@@ -126,6 +133,7 @@ var Name = map[uint64]string{
 	syscall.SYS_MKDIR:          "mkdir",          // { int sys_mkdir(const char *path, mode_t mode); }
 	syscall.SYS_RMDIR:          "rmdir",          // { int sys_rmdir(const char *path); }
 	syscall.SYS_ADJTIME:        "adjtime",        // { int sys_adjtime(const struct timeval *delta, \
+	syscall.SYS_GETLOGIN_R:     "getlogin_r",     // { int sys_getlogin_r(char *namebuf, u_int namelen); }
 	syscall.SYS_SETSID:         "setsid",         // { int sys_setsid(void); }
 	syscall.SYS_QUOTACTL:       "quotactl",       // { int sys_quotactl(const char *path, int cmd, \
 	syscall.SYS_NFSSVC:         "nfssvc",         // { int sys_nfssvc(int flag, void *argp); }
@@ -145,7 +153,7 @@ var Name = map[uint64]string{
 	syscall.SYS_LSEEK:          "lseek",          // { off_t sys_lseek(int fd, int pad, off_t offset, \
 	syscall.SYS_TRUNCATE:       "truncate",       // { int sys_truncate(const char *path, int pad, \
 	syscall.SYS_FTRUNCATE:      "ftruncate",      // { int sys_ftruncate(int fd, int pad, off_t length); }
-	syscall.SYS___SYSCTL:       "__sysctl",       // { int sys___sysctl(const int *name, u_int namelen, \
+	syscall.SYS_SYSCTL:         "sysctl",         // { int sys_sysctl(const int *name, u_int namelen, \
 	syscall.SYS_MLOCK:          "mlock",          // { int sys_mlock(const void *addr, size_t len); }
 	syscall.SYS_MUNLOCK:        "munlock",        // { int sys_munlock(const void *addr, size_t len); }
 	syscall.SYS_GETPGID:        "getpgid",        // { pid_t sys_getpgid(pid_t pid); }

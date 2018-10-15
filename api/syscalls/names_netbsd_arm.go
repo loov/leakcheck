@@ -133,6 +133,7 @@ var Name = map[uint64]string{
 	syscall.SYS_MINHERIT:             "minherit",             // { int|sys||minherit(void *addr, size_t len, int inherit); }
 	syscall.SYS_LCHMOD:               "lchmod",               // { int|sys||lchmod(const char *path, mode_t mode); }
 	syscall.SYS_LCHOWN:               "lchown",               // { int|sys||lchown(const char *path, uid_t uid, gid_t gid); }
+	syscall.SYS_MSYNC:                "msync",                // { int|sys|13|msync(void *addr, size_t len, int flags); }
 	syscall.SYS___POSIX_CHOWN:        "__posix_chown",        // { int|sys||__posix_chown(const char *path, uid_t uid, gid_t gid); }
 	syscall.SYS___POSIX_FCHOWN:       "__posix_fchown",       // { int|sys||__posix_fchown(int fd, uid_t uid, gid_t gid); }
 	syscall.SYS___POSIX_LCHOWN:       "__posix_lchown",       // { int|sys||__posix_lchown(const char *path, uid_t uid, gid_t gid); }

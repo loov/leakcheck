@@ -17,18 +17,25 @@ import (
 )
 
 func main() {
-	matches, err := filepath.Glob(filepath.Join(runtime.GOROOT(), "src", "syscall", "zsysnum_*.go"))
+	glob := filepath.Join(runtime.GOROOT(), "src", "cmd", "vendor", "golang.org", "x", "sys", "unix", "zsysnum_*.go")
+	matches, err := filepath.Glob(glob)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to find zsysnum_*: %v\n", err)
 		os.Exit(1)
 	}
 
+	if len(matches) == 0 {
+		fmt.Fprintf(os.Stderr, "failed to find zsysnum_*\n")
+		os.Exit(1)
+	}
 	for _, match := range matches {
 		generate(match)
 	}
 }
 
 func generate(sourceFile string) {
+	platform := strings.TrimPrefix(filepath.Base(sourceFile), "zsysnum_")
+
 	fmt.Fprintf(os.Stdout, "generating names for %q\n", sourceFile)
 	fset := token.NewFileSet()
 
@@ -60,10 +67,16 @@ func generate(sourceFile string) {
 			if len(x.Names) != 1 {
 				panic("unhandled")
 			}
+
+			name := x.Names[0].Name
+			if platform == "linux_386.go" && name == "MADVISE1" {
+				return false
+			}
+
 			if x.Comment == nil {
-				fmt.Fprintf(output, "\tsyscall.%v: %q,\n", x.Names[0].Name, cleanupSysname(x.Names[0].Name))
+				fmt.Fprintf(output, "\tsyscall.%v: %q,\n", name, cleanupSysname(name))
 			} else {
-				fmt.Fprintf(output, "\tsyscall.%v: %q, // %v\n", x.Names[0].Name, cleanupSysname(x.Names[0].Name), strings.TrimSpace(x.Comment.Text()))
+				fmt.Fprintf(output, "\tsyscall.%v: %q, // %v\n", name, cleanupSysname(name), strings.TrimSpace(x.Comment.Text()))
 			}
 			return false
 		}
@@ -78,7 +91,6 @@ func generate(sourceFile string) {
 		return
 	}
 
-	platform := strings.TrimPrefix(filepath.Base(sourceFile), "zsysnum_")
 	tableFile := "names_" + platform
 	err = ioutil.WriteFile(tableFile, formatted, 0644)
 	if err != nil {
