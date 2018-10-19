@@ -9,7 +9,7 @@ func registersToCall(pid int, registers unix.PtraceRegs) api.Call {
 	raw := api.Syscall{
 		Number: uint64(registers.Orig_eax),
 	}
-
+	// arguments: %ebx, %ecx, %edx, %esi, %edi, %ebp
 	switch raw.Number {
 	case unix.SYS_OPEN:
 		return api.Open{
@@ -70,6 +70,9 @@ func registersToCall(pid int, registers unix.PtraceRegs) api.Call {
 				Failed: registers.Eax != 0,
 			}
 		}
+
+		// case unix.SYS_CLONE:
+		// case unix.SYS_KILL:
 	}
 
 	return raw

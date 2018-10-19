@@ -1,6 +1,8 @@
 package ptrace
 
 import (
+	"syscall"
+
 	"github.com/loov/leakcheck/api"
 	"golang.org/x/sys/unix"
 )
@@ -10,6 +12,7 @@ func registersToCall(pid int, registers unix.PtraceRegs) api.Call {
 		Number: uint64(registers.Orig_rax),
 	}
 
+	// arguments %rdi, %rsi, %rdx, %rcx, %r8 and %r9
 	switch raw.Number {
 	case unix.SYS_OPEN:
 		return api.Open{
@@ -61,6 +64,21 @@ func registersToCall(pid int, registers unix.PtraceRegs) api.Call {
 			FD:      int64(registers.Rdi),
 			Addr:    addr,
 			Failed:  registers.Rax != 0,
+		}
+
+	case unix.SYS_CLONE:
+		return api.Clone{
+			Syscall:   raw,
+			Flag:      int64(registers.Rdi),
+			ResultPID: int64(registers.Rax),
+			Failed:    int64(registers.Rax) < 0,
+		}
+	case unix.SYS_KILL:
+		return api.Kill{
+			Syscall: raw,
+			PID:     int64(registers.Rdi),
+			Signal:  syscall.Signal(registers.Rsi),
+			Failed:  int64(registers.Rax) != 0,
 		}
 	}
 

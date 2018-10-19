@@ -9,6 +9,7 @@ import (
 	"github.com/loov/leakcheck/analysers/connuse"
 	"github.com/loov/leakcheck/analysers/counter"
 	"github.com/loov/leakcheck/analysers/fileuse"
+	"github.com/loov/leakcheck/analysers/procuse"
 	"github.com/loov/leakcheck/analysers/tempuse"
 	"github.com/loov/leakcheck/analysers/tracer"
 	"github.com/loov/leakcheck/api"
@@ -16,11 +17,16 @@ import (
 )
 
 func main() {
-	count := flag.Bool("count", false, "count syscalls")
-	dotrace := flag.Bool("trace", false, "trace all monitored syscalls")
 	verbose := flag.Bool("verbose", false, "enable verbose output")
 	summary := flag.Bool("summary", false, "summary of analysers")
-	temponly := flag.Bool("temponly", false, "creating files only allowed in temporary directory")
+
+	fileuseEnabled := flag.Bool("file", true, "monitor file usage")
+	connuseEnabled := flag.Bool("conn", true, "monitor connection usage")
+	procuseEnabled := flag.Bool("proc", false, "monitor process usage (flaky)")
+	counterEnabled := flag.Bool("count", false, "count syscalls")
+	tempuseEnabled := flag.Bool("temp", false, "monitor proper temporary usage")
+	tracerEnabled := flag.Bool("trace", false, "trace all monitored syscalls")
+
 	flag.Parse()
 
 	if *verbose {
@@ -28,16 +34,22 @@ func main() {
 	}
 
 	var analysers api.Analysers
-	analysers.Add(fileuse.New(*verbose))
-	analysers.Add(connuse.New(*verbose))
-
-	if *temponly {
+	if *fileuseEnabled {
+		analysers.Add(fileuse.New(*verbose))
+	}
+	if *connuseEnabled {
+		analysers.Add(connuse.New(*verbose))
+	}
+	if *procuseEnabled {
+		analysers.Add(procuse.New(*verbose))
+	}
+	if *tempuseEnabled {
 		analysers.Add(tempuse.New(*verbose))
 	}
-	if *count {
+	if *counterEnabled {
 		analysers.Add(counter.New())
 	}
-	if *dotrace {
+	if *tracerEnabled {
 		analysers.Add(tracer.New())
 	}
 

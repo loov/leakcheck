@@ -2,6 +2,7 @@ package api
 
 import (
 	"strconv"
+	"syscall"
 
 	"github.com/loov/leakcheck/api/syscalls"
 )
@@ -40,6 +41,20 @@ type Bind struct {
 type Close struct {
 	Syscall
 	FD     int64
+	Failed bool
+}
+
+type Clone struct {
+	Syscall
+	Flag      int64 // corresponding to unix.CLONE_*
+	ResultPID int64
+	Failed    bool
+}
+
+type Kill struct {
+	Syscall
+	PID    int64
+	Signal syscall.Signal
 	Failed bool
 }
 

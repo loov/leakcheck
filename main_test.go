@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"net"
 	"os"
+	"os/exec"
 	"testing"
 )
 
@@ -67,4 +68,28 @@ func TestConnLeak(t *testing.T) {
 		t.Fatal(err)
 	}
 	_ = conn
+}
+
+func TestExecNormal(t *testing.T) {
+	cmd := exec.Command("sleep", "0")
+	if err := cmd.Run(); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestExecLeak(t *testing.T) {
+	cmd := exec.Command("sleep", "5")
+	if err := cmd.Start(); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestExecKill(t *testing.T) {
+	cmd := exec.Command("sleep", "5")
+	if err := cmd.Start(); err != nil {
+		t.Fatal(err)
+	}
+	if err := cmd.Process.Kill(); err != nil {
+		t.Fatal(err)
+	}
 }
