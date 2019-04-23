@@ -6,7 +6,7 @@ leakcheck analyses program syscalls and checks whether:
 * [x] Open files are not deleted
 * [x] Connections are closed properly
 * [x] Servers are stopped properly
-* [x] With `-temponly`, whether tests use only temp directory for tests.
+* [x] With `-temp`, whether tests use only temp directory for tests.
 
 Currently supported:
 
@@ -24,5 +24,5 @@ This can be used together with Go tests:
 go test -exec leakcheck .
 
 # additionally checking that all files are created in temp
-go test -exec "leakcheck -temponly" .
+go test -exec "leakcheck -temp" .
 ```
