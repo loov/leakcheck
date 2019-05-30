@@ -6,24 +6,34 @@ import (
 	"strings"
 )
 
+// Analyser defines how different calls can be analyzed.
 type Analyser interface {
+	// Handle handles the call, which might
+	//  print output immediately or
+	//  collect information and write the information later.
 	Handle(call Call)
+	// Err returns whether some error happened during collection.
 	Err() error
-	WriteTo(w io.Writer) (int64, error)
+	// WriteResult writes analyser result to w.
+	WriteResult(w io.Writer) (int64, error)
 }
 
+// Analysers combines multiple analysers into a single implementation.
 type Analysers []Analyser
 
+// Add adds multiple analysers to the collection.
 func (xs *Analysers) Add(x ...Analyser) {
 	*xs = append(*xs, x...)
 }
 
+// Handle handles call with all analysers sequentially.
 func (xs Analysers) Handle(call Call) {
 	for _, x := range xs {
 		x.Handle(call)
 	}
 }
 
+// Err returns whether any error happened during collection.
 func (xs Analysers) Err() error {
 	var errs []string
 	for _, x := range xs {
@@ -38,11 +48,12 @@ func (xs Analysers) Err() error {
 	return errors.New(strings.Join(errs, "\n"))
 }
 
-func (xs Analysers) WriteTo(w io.Writer) (int64, error) {
+// WriteResult writes all the outputs from analysers.
+func (xs Analysers) WriteResult(w io.Writer) (int64, error) {
 	var errs []string
 	var total int64
 	for _, x := range xs {
-		n, err := x.WriteTo(w)
+		n, err := x.WriteResult(w)
 		total += n
 		if err != nil {
 			errs = append(errs, err.Error())

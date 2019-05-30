@@ -24,7 +24,7 @@ func (counter *Counter) Handle(call api.Call) {
 
 func (counter *Counter) Err() error { return nil }
 
-func (counter *Counter) WriteTo(w io.Writer) (int64, error) {
+func (counter *Counter) WriteResult(w io.Writer) (int64, error) {
 	calls := []api.Syscall{}
 	for call := range counter.Calls {
 		calls = append(calls, call)

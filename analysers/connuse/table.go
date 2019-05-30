@@ -131,6 +131,6 @@ func (table *Table) Err() error {
 	return errors.New(buf.String())
 }
 
-func (table *Table) WriteTo(w io.Writer) (int64, error) {
+func (table *Table) WriteResult(w io.Writer) (int64, error) {
 	return 0, nil
 }

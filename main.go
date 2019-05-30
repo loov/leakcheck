@@ -65,7 +65,7 @@ func main() {
 	}
 
 	if *summary {
-		analysers.WriteTo(os.Stderr)
+		analysers.WriteResult(os.Stderr)
 	}
 
 	if err := analysers.Err(); err != nil {

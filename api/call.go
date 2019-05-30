@@ -76,6 +76,7 @@ type Syscall struct {
 // Raw returns the information uninterpreted.
 func (call Syscall) Raw() Syscall { return call }
 
+// String returns syscall name or if that isn't available, the number.
 func (call Syscall) String() string {
 	if call.Name != "" {
 		return call.Name
