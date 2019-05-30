@@ -11,10 +11,12 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+// Supported returns whether tracing is supported.
 func Supported() error {
 	return nil
 }
 
+// Program starts cmd with args and attaches tracer and analyser.
 func Program(ctx context.Context, analyser api.Analyser, command string, args ...string) (int, error) {
 	cmd := exec.Command(command, args...)
 	cmd.Stderr, cmd.Stdin, cmd.Stdout = os.Stderr, os.Stdin, os.Stdout

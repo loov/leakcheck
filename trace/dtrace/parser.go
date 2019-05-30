@@ -8,11 +8,13 @@ import (
 	"github.com/loov/leakcheck/api"
 )
 
+// Parser parses dtruss output.
 type Parser struct {
 	source  io.Reader
 	scanner *bufio.Scanner
 }
 
+// NewParser creates a parser for dtruss output.
 func NewParser(source io.Reader) *Parser {
 	return &Parser{
 		source:  source,
@@ -28,6 +30,7 @@ issetugid(0x0, 0x0, 0x0)		 = 0 0
 ioctl(0x2, 0x4004667A, 0x7FFEEFBFDA44)		 = 0 0
 */
 
+// Next returns next call from reader.
 func (parser *Parser) Next() (api.Call, error) {
 	for parser.scanner.Scan() {
 		line := parser.scanner.Text()
