@@ -1,3 +1,3 @@
 module github.com/loov/leakcheck
 
-require golang.org/x/sys v0.0.0-20181011152604-fa43e7bc11ba
+require golang.org/x/sys v0.0.0-20190529164535-6a60838ec259
