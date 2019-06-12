@@ -48,7 +48,8 @@ func Program(ctx context.Context, analyser api.Analyser, command string, args ..
 		var registers unix.PtraceRegs
 		err = unix.PtraceGetRegs(pid, &registers)
 		if err != nil {
-			if cmd.ProcessState.Exited() {
+			_, err2 := unix.Wait4(pid, &status, unix.WNOHANG, nil)
+			if err2 == nil && status.Exited() {
 				break
 			}
 			return 1, fmt.Errorf("ptrace get regs failed: %v", err)
@@ -59,7 +60,8 @@ func Program(ctx context.Context, analyser api.Analyser, command string, args ..
 
 		err = unix.PtraceSyscall(pid, 0)
 		if err != nil {
-			if cmd.ProcessState.Exited() {
+			_, err2 := unix.Wait4(pid, &status, unix.WNOHANG, nil)
+			if err2 == nil && status.Exited() {
 				break
 			}
 			return 1, fmt.Errorf("ptrace syscall failed: %v", err)
@@ -67,7 +69,8 @@ func Program(ctx context.Context, analyser api.Analyser, command string, args ..
 
 		_, err = unix.Wait4(pid, &status, 0, nil)
 		if err != nil {
-			if cmd.ProcessState.Exited() {
+			_, err2 := unix.Wait4(pid, &status, unix.WNOHANG, nil)
+			if err2 == nil && status.Exited() {
 				break
 			}
 			return 1, fmt.Errorf("ptrace wait4 failed: %v", err)
