@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"syscall"
 
 	"github.com/loov/leakcheck/api"
@@ -18,6 +19,9 @@ func Supported() error {
 
 // Program starts cmd with args and attaches tracer and analyser.
 func Program(ctx context.Context, analyser api.Analyser, command string, args ...string) (int, error) {
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
+
 	cmd := exec.Command(command, args...)
 	cmd.Stderr, cmd.Stdin, cmd.Stdout = os.Stderr, os.Stdin, os.Stdout
 	cmd.SysProcAttr = &syscall.SysProcAttr{
