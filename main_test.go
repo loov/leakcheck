@@ -63,7 +63,7 @@ func TestServerLeak(t *testing.T) {
 }
 
 func TestConnLeak(t *testing.T) {
-	conn, err := net.Dial("tcp", "loov.io:80")
+	conn, err := net.Dial("tcp", "loov.dev:80")
 	if err != nil {
 		t.Fatal(err)
 	}
